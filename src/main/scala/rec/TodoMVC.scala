@@ -27,6 +27,13 @@ object TodoMVC extends RecHtmlApp {
         onUpdate(id, Some(todo.copy(checked = data.checked)))
       }
 
+      /*
+      <li><div class="view">
+        <input class="toggle" type="checkbox" checked=todo.checked checkClicked checked=#checked/>
+        <label>todo.content</label>
+        <button class="destroy" onclick(_ => onUpdate(id, None)></button>
+      </div></li>
+       */
       li(
         Nil,
         RNil,
@@ -47,6 +54,12 @@ object TodoMVC extends RecHtmlApp {
   }
 
   def makeToggleAll(todos: List[Todo]) = Html.fix[CheckedSubmit] { withReader =>
+    /*
+    <input id="toggle-all" class="toggle-all" type="checkbox" checked=#checked
+      withReader(onclick) { (data, _) =>
+        html(todos.map(_.copy(checked = data.checked)))
+      } />
+     */
     input(
       id("toggle-all") ::
         `class`("toggle-all") ::
@@ -66,6 +79,11 @@ object TodoMVC extends RecHtmlApp {
         else html(todos)
       }
       val reset = if (resetSubmission) List(value("")) else Nil
+
+      /*
+      <input class="new-todo" placeholder="enter todo" autofocus clk
+        reset value=#in />
+       */
       input(
         `class`("new-todo") :: placeholder("Enter todo...") :: autofocus :: clk :: reset,
         field[TodoSubmit]("value", "in"),
@@ -81,6 +99,21 @@ object TodoMVC extends RecHtmlApp {
   }
 
   def html(todos: List[Todo], resetSubmission: Boolean = false): Html[_] =
+    /*
+    <div>
+      <header class="header">
+        <h1>todos</h1>
+        mkTodoSubmit(todos, resetSubmission)
+      </header>
+      <section class="main">
+        maketoggleAll(todos)
+        <label for="toggle-all">Mark all as complete</label>
+        <ul class="todo-list">
+          mkTodoViews(todos)
+        </ul>
+      </section
+    </div>
+     */
     div(
       Nil,
       RNil,
@@ -95,9 +128,7 @@ object TodoMVC extends RecHtmlApp {
           label(Attribute("for", "toggle-all"),
                 RNil,
                 text("Mark all as complete")) ::
-          ul(`class`("todo-list"),
-             RNil,
-             li(Nil, RNil, mkTodoViews(todos) ::: NNil))
+          ul(`class`("todo-list"), RNil, mkTodoViews(todos) ::: NNil)
       )
     )
 
