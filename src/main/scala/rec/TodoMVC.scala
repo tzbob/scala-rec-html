@@ -14,11 +14,6 @@ object TodoMVC extends RecHtmlApp {
   trait TodoSubmit    extends js.Object { val in: String       = js.native }
   trait CheckedSubmit extends js.Object { val checked: Boolean = js.native }
 
-  trait TodoChange extends js.Object {
-    val content: String  = js.native
-    val checked: Boolean = js.native
-  }
-
   def viewTodo[R](id: Int,
                   todo: Todo,
                   onUpdate: (Int, Option[Todo]) => Html[_]): Html[_] = {
@@ -42,7 +37,7 @@ object TodoMVC extends RecHtmlApp {
           RNil,
           input(
             `class`("toggle") :: tpe("checkbox") :: checked(todo.checked) :: checkClicked,
-            field[{ val checked: Boolean }]("checked", "checked"),
+            field[CheckedSubmit]("checked", "checked"),
             NNil) ::
             label(Nil, RNil, text(todo.content)) ::
             button(`class`("destroy") :: onclick(_ => onUpdate(id, None)),

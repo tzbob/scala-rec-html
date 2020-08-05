@@ -21,11 +21,11 @@ object Html {
         .asInstanceOf[Read]
   }
 
-  case class Element[-Reads, -ChildReads](tag: String,
-                                          attributes: Seq[Attr],
-                                          reads: ReadList[Reads],
-                                          children: NodeList[ChildReads])
-      extends Html[Reads with ChildReads]
+  case class Element[-Reads](tag: String,
+                             attributes: Seq[Attr],
+                             reads: ReadList[Reads],
+                             children: NodeList[Reads])
+      extends Html[Reads]
 
   case class Text(str: String) extends Html[{}]
 
