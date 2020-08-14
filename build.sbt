@@ -14,7 +14,7 @@ scalacOptions in ThisBuild ++= Seq(
   "UTF-8",
   "-feature",
   "-deprecation",
-  "-Xlint",
+  "-Xlint:-unused",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
   "-Ywarn-value-discard",
@@ -27,9 +27,9 @@ requireJsDomEnv in Test := true
 scalaJSUseMainModuleInitializer := true
 scalaJSModuleKind := ModuleKind.CommonJSModule
 
-
 libraryDependencies ++= Seq(
+  "com.chuusai"   %%% "shapeless"          % "2.3.3",
   "be.tzbob"      %%% "scala-js-snabbdom" % "0.5.0",
-  "org.scala-js"  %%% "scalajs-dom" % "1.0.0",
-  "org.scalatest" %%% "scalatest"   % "3.1.0" % Test,
+  "org.scala-js"  %%% "scalajs-dom"       % "1.0.0",
+  "org.scalatest" %%% "scalatest"         % "3.1.0" % Test,
 )

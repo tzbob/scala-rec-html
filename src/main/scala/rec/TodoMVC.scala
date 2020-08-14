@@ -4,22 +4,23 @@ import org.scalajs.dom
 import org.scalajs.dom.KeyboardEvent
 import rec.Attr.Attribute
 import rec.syntax.DSL._
+import shapeless._
+import shapeless.record._
 
-import scala.scalajs.js
-
-object TodoMVC extends RecHtmlApp {
+class TodoMVC extends RecHtmlApp {
   def isEnter(ev: dom.Event) = ev.asInstanceOf[KeyboardEvent].key == "Enter"
 
   case class Todo(content: String, checked: Boolean)
-  trait TodoSubmit    extends js.Object { val in: String       = js.native }
-  trait CheckedSubmit extends js.Object { val checked: Boolean = js.native }
+
+  type TodoSubmit    = ("in" ->> String) :: HNil
+  type CheckedSubmit = ("checked" ->> Boolean) :: HNil
 
   def viewTodo[R](id: Int,
                   todo: Todo,
                   onUpdate: (Int, Option[Todo]) => Html[_]): Html[_] = {
     Html.fix[CheckedSubmit] { withReader =>
       val checkClicked = withReader(onclick) { (data, _) =>
-        onUpdate(id, Some(todo.copy(checked = data.checked)))
+        onUpdate(id, Some(todo.copy(checked = data("checked"))))
       }
 
       /*
@@ -37,13 +38,13 @@ object TodoMVC extends RecHtmlApp {
           RNil,
           input(
             `class`("toggle") :: tpe("checkbox") :: checked(todo.checked) :: checkClicked,
-            field[CheckedSubmit]("checked", "checked"),
+            field("checked", "checked".is[Boolean]),
             NNil) ::
             label(Nil, RNil, text(todo.content)) ::
             button(`class`("destroy") :: onclick(_ => onUpdate(id, None)),
                    RNil,
                    NNil)
-        )
+        ) :: NNil
       )
     }
   }
@@ -60,9 +61,9 @@ object TodoMVC extends RecHtmlApp {
         `class`("toggle-all") ::
         tpe("checkbox") ::
         withReader(onclick) { (data, _) =>
-        html(todos.map(_.copy(checked = data.checked)))
+        html(todos.map(_.copy(checked = data("checked"))))
       },
-      field[CheckedSubmit]("checked", "checked"),
+      field("checked", "checked".is[Boolean]),
       NNil
     )
   }
@@ -70,7 +71,7 @@ object TodoMVC extends RecHtmlApp {
   def mkTodoSubmit(todos: List[Todo], resetSubmission: Boolean) =
     Html.fix[TodoSubmit] { withReader =>
       val clk = withReader(onkeyup) { (data, ev) =>
-        if (isEnter(ev)) html(Todo(data.in, false) :: todos, true)
+        if (isEnter(ev)) html(Todo(data("in"), false) :: todos, true)
         else html(todos)
       }
       val reset = if (resetSubmission) List(value("")) else Nil
@@ -81,11 +82,11 @@ object TodoMVC extends RecHtmlApp {
        */
       input(
         `class`("new-todo") :: placeholder("Enter todo...") :: autofocus :: clk :: reset,
-        field[TodoSubmit]("value", "in"),
+        field("value", "in".is[String]),
         NNil)
     }
 
-  def mkTodoViews(todos: List[Todo]) = todos.zipWithIndex.map {
+  def mkTodoViews(todos: List[Todo]): List[Html[HNil]] = todos.zipWithIndex.map {
     case (t, i) =>
       Html.ignore(viewTodo(i, t, {
         case (i, Some(todo)) => html(todos.updated(i, todo))
@@ -114,8 +115,9 @@ object TodoMVC extends RecHtmlApp {
       RNil,
       header(`class`("header"),
              RNil,
-             h1(Nil, RNil, text("todos")) :: mkTodoSubmit(todos,
-                                                          resetSubmission)) ::
+             h1(Nil, RNil, text("todos")) :: mkTodoSubmit(
+               todos,
+               resetSubmission) ) ::
         section(
         `class`("main"),
         RNil,

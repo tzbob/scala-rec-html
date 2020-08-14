@@ -1,24 +1,37 @@
 package rec.syntax
 
-import rec.{Attr, Html, NodeList, ReadList}
 import rec.Html.{Field, Text}
+import rec.NodeList.NodeList
+import rec.ReadList.ReadList
+import rec._
+import shapeless._
+import shapeless.labelled.FieldType
 
 import scala.language.implicitConversions
 
 object DSL extends Tags with Attributes.Attrs with Events {
-  val RNil: ReadList[{}] = ReadList.Empty
-  val NNil: NodeList[{}] = NodeList.Empty
+  type ->>[K, V] = FieldType[K, V]
 
-  val text: String => Html[{}]               = str => Text(str)
-  def field[R]: (String, String) => Field[R] = Field[R](_, _)
+  val RNil: ReadList[HNil] = ReadList.Empty
+  val NNil: NodeList[HNil] = NodeList.Empty
+
+  case class FieldSelector[R](fieldName: String)
+  implicit class FieldSelectorMaker[K <: Singleton with String](str: K)(
+      implicit witness: Witness.Aux[K]) {
+    def is[V]: FieldSelector[FieldType[K, V] :: HNil] =
+      FieldSelector[FieldType[K, V] :: HNil](str)
+  }
+
+  val text: String => Html[HNil] = str => Text(str)
+  def field[R](attribute: String, field: FieldSelector[R]): Field[R] =
+    Field[R](attribute, field.fieldName)
 
   implicit def toList[R](attr: Attr): List[Attr] = List(attr)
-  implicit def toNodeList[R](html: Html[R]): NodeList[R with AnyRef] =
-    NodeList.NCons(html, NodeList.Empty).widen
-  implicit def toNodeListN[R](html: List[Html[R]]): NodeList[{
-    def list: List[R]
-  }] =
-    NodeList.ListCons(html, NodeList.Empty).widen
-  implicit def toReadList[R](field: Field[R]): ReadList.Cons[R, {}] =
-    ReadList.Cons(field, ReadList.Empty)
+  implicit def toNodeList[R <: HList](html: Html[R])(
+      implicit recordConcat: RecordConcat[HNil, R, R]): NodeList[R] =
+    NodeList.RecordList[R](List(html))
+
+  implicit def toReadList[R <: HList](field: Field[R])(
+      implicit recordConcat: RecordConcat[HNil, R, R]): ReadList[R] =
+    ReadList.RecordList[R](List(field))
 }

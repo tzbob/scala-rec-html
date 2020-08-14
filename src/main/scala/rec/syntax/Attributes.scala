@@ -837,6 +837,7 @@ object Attributes {
       with MediaEventAttrs
       with MiscellaneousEventAttrs
       with WindowEventAttrs
+      with Global
 
   /**
     * This is the single required attribute for anchors defining a hypertext

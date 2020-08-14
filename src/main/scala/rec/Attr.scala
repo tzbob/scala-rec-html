@@ -1,7 +1,6 @@
 package rec
 
 import org.scalajs.dom
-import rec.Html.Field
 
 import scala.scalajs.js.|
 
@@ -14,6 +13,6 @@ object Attr {
   case class EventBind(event: String, f: dom.Event => Html[_]) extends Attr
   case class FixedEventBind[R](event: String,
                                f: (R, dom.Event) => Html[_],
-                               getFieldList: () => List[Field[_]])
+                               readR: () => R)
       extends Attr
 }

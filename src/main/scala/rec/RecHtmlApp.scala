@@ -8,6 +8,7 @@ trait RecHtmlApp {
       Html.toVNode(html, vn => domPatcher.applyNewState(vn)),
       element)
     domPatcher
+    ()
   }
 
   def main(args: Array[String]): Unit = {

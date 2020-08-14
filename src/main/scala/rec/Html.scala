@@ -1,13 +1,16 @@
 package rec
 
 import org.scalajs.dom
+import rec.NodeList.NodeList
+import rec.ReadList.ReadList
 import rec.syntax.EventBindMaker
+import shapeless.{HList, HNil}
 import snabbdom.VNode
 
 import scala.concurrent.duration.Duration
 import scala.scalajs.js
-import scala.scalajs.js.{Dictionary, |}
 import scala.scalajs.js.JSConverters._
+import scala.scalajs.js.{Dictionary, |}
 
 sealed trait Html[-Read]
 object Html {
@@ -21,109 +24,115 @@ object Html {
         .asInstanceOf[Read]
   }
 
-  case class Element[-Reads](tag: String,
-                             attributes: Seq[Attr],
-                             reads: ReadList[Reads],
-                             children: NodeList[Reads])
+  case class Element[R1 <: HList, R2 <: HList, Reads <: HList](
+      tag: String,
+      attributes: Seq[Attr],
+      reads: ReadList[R1],
+      children: NodeList[R2])(
+      implicit recordConcat: RecordConcat[R1, R2, Reads])
       extends Html[Reads]
 
-  case class Text(str: String) extends Html[{}]
+  case class Text(str: String) extends Html[HNil]
 
   case class SetTimeout[R](now: Html[R],
                            duration: Duration,
                            next: () => Html[R])
       extends Html[R]
 
-  def ignore[R](html: Html[R]): Html[{}] = html.asInstanceOf[Html[{}]]
+  def ignore[R](html: Html[R]): Html[HNil] = html.asInstanceOf[Html[HNil]]
 
   def after[R](now: Html[R], duration: Duration, next: => Html[R]) =
     SetTimeout(now, duration, () => next)
 
-  def fix[R](
-      f: (EventBindMaker => ((R, dom.Event) => Html[_]) => Attr) => Html[R])
-    : Html[_] = {
+  def fix[R <: HList](
+      f: (EventBindMaker => ((R, dom.Event) => Html[_]) => Attr) => Html[R])(
+      implicit fromMap: FromMap[R]): Html[HNil] = {
+
+    lazy val readR = () => { // Try and figure out a way to properly use FromMap
+      val fieldList = Html.allFields(htmlResult)
+      val fieldValueList = fieldList.map { field =>
+        field.fieldName -> field.read()
+      }
+      val fieldMap = fieldValueList.toMap
+      fromMap(fieldMap) match {
+        case None =>
+          throw new RuntimeException(
+            "Your read data does not match the JavaScript types")
+        case Some(r) => r
+      }
+    }
 
     lazy val attrMaker
       : EventBindMaker => ((R, dom.Event) => Html[_]) => Attr = {
       (event: EventBindMaker) => (usedReaderF: (R, dom.Event) => Html[_]) =>
-        Attr.FixedEventBind(event.key,
-                            usedReaderF,
-                            () => Html.allFields(htmlResult))
+        Attr.FixedEventBind(event.key, (r: R, ev) => {
+          usedReaderF(r, ev)
+        }, readR)
     }
+
     lazy val htmlResult = f(attrMaker)
-    htmlResult
+    ignore(htmlResult)
   }
 
-  def allFields[R](html: Html[R]): List[Field[_]] = html match {
+  def allFields(html: Html[_]): List[Field[_]] = html match {
     case SetTimeout(now, _, _) => allFields(now)
     case Element(_, _, reads, children) =>
-      ReadList
-        .toList(reads) ::: NodeList.toList(children).map(allFields).flatten
+      reads.toList ::: children.toList.map(allFields).flatten
     case Text(_) => Nil
   }
 
-  private def readListToR[R](fieldList: List[Field[_]], el: dom.Element): R = {
-    val fieldValueList = fieldList.map { field =>
-      field.fieldName -> field.read()
-    }
-    fieldValueList.toMap.toJSDictionary.asInstanceOf[R]
-  }
-
-  def toVNode[R](html: Html[R], render: VNode => Unit): VNode = html match {
-    case SetTimeout(now, duration, next) =>
-      dom.window
-        .setTimeout(() => render(toVNode(next(), render)), duration.toMillis)
-      toVNode(now, render)
-    case Html.Text(str) => str.asInstanceOf[VNode]
-    case Html.Element(tag, attributes, readList, children) =>
-      val jsAttributes: Dictionary[String] = attributes
-        .collect {
-          case Attr.Attribute(key, value) => key -> value
-        }
-        .toMap
-        .toJSDictionary
-
-      val jsProperties: Dictionary[String | Boolean | Int] = attributes
-        .collect {
-          case Attr.Property(key, value) => key -> value
-        }
-        .toMap
-        .toJSDictionary
-
-      val jsBindings: Dictionary[js.Function1[dom.Event, Unit]] =
-        attributes
+  def toVNode[R <: HNil](html: Html[R], render: VNode => Unit): VNode =
+    html match {
+      case SetTimeout(now, duration, next) =>
+        dom.window
+          .setTimeout(() => render(toVNode(next(), render)), duration.toMillis)
+        toVNode(now, render)
+      case Html.Text(str) => str.asInstanceOf[VNode]
+      case Html.Element(tag, attributes, readList, children) =>
+        val jsAttributes: Dictionary[String] = attributes
           .collect {
-            case Attr.EventBind(event, f) =>
-              event -> ({ (ev: dom.Event) =>
-                render(toVNode(f(ev), render))
-              }: js.Function1[dom.Event, Unit])
-            case Attr.FixedEventBind(event,
-                                     f: ((R, dom.Event) => Html[_]),
-                                     getFieldList) =>
-              event -> ({ (ev: dom.Event) =>
-                val r =
-                  readListToR[R](getFieldList(),
-                                 ev.currentTarget.asInstanceOf[dom.Element])
-                f(r, ev)
-                render(toVNode(f(r, ev), render))
-              }: js.Function1[dom.Event, Unit])
+            case Attr.Attribute(key, value) => key -> value
           }
           .toMap
           .toJSDictionary
 
-      val jsChildren =
-        NodeList.toList(children).map(toVNode(_, render)).toJSArray
+        val jsProperties: Dictionary[String | Boolean | Int] = attributes
+          .collect {
+            case Attr.Property(key, value) => key -> value
+          }
+          .toMap
+          .toJSDictionary
 
-      val data = js.Dynamic.literal(
-        attrs = jsAttributes,
-        props = jsProperties,
-        on = jsBindings
-      )
+        val jsBindingsMap = attributes.collect {
+          case Attr.EventBind(event, f) =>
+            event -> ({ (ev: dom.Event) =>
+              render(toVNode(f(ev), render))
+            }: js.Function1[dom.Event, Unit])
+          case Attr.FixedEventBind(event,
+                                   f: ((R, dom.Event) => Html[_]),
+                                   readR) =>
+            event -> ({ (ev: dom.Event) =>
+              val r = readR()
+              f(r, ev)
+              render(toVNode(f(r, ev), render))
+            }: js.Function1[dom.Event, Unit])
+        }.toMap
+        val jsBindings: Dictionary[js.Function1[dom.Event, Unit]] =
+          jsBindingsMap.toJSDictionary
 
-      val vnode = snabbdom.h(tag, data, jsChildren)
-      ReadList.toList(readList).foreach { field =>
-        field.currentElement = Some(() => vnode.elm.asInstanceOf[dom.Element])
-      }
-      vnode
-  }
+        val jsChildren =
+          children.toList.map(toVNode(_, render)).toJSArray
+
+        val data = js.Dynamic.literal(
+          attrs = jsAttributes,
+          props = jsProperties,
+          on = jsBindings
+        )
+
+        val vnode = snabbdom.h(tag, data, jsChildren)
+        readList.toList.foreach { field =>
+          field.currentElement = Some(() => vnode.elm.asInstanceOf[dom.Element])
+        }
+        vnode
+    }
 }
