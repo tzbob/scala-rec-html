@@ -4,9 +4,7 @@ import rec.typed.syntax.DSL._
 import shapeless._
 import shapeless.record._
 
-import scala.language.reflectiveCalls
-
-object ViewPerson extends RecHtmlApp {
+class ViewPerson extends RecHtmlApp {
   type Person = ("last" ->> String) :: ("first" ->> String) :: HNil
 
   val lastname = // <input type="text" value=#last/>
@@ -26,9 +24,8 @@ object ViewPerson extends RecHtmlApp {
         text(s"Person: ${person.apply("last")} ${person("first")}") :: back)
   }
 
-  val inputPerson = Html.fix["click", "div", Person] { bindWithReader =>
+  val inputPerson = Html[Person].fix { bindWithReader =>
     val clickBind = bindWithReader(onclick) { (person, _) =>
-      println("Click triggered")
       showPerson(person)
     }
 

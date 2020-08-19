@@ -1,6 +1,5 @@
 package rec
 
-import rec.typed.SubsetOf.⊂
 import shapeless.HList
 
 object NodeList extends RecordList[Html] {

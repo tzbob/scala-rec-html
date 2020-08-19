@@ -18,6 +18,7 @@ scalacOptions in ThisBuild ++= Seq(
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
   "-Ywarn-value-discard",
+  "-language:implicitConversions"
 )
 
 name := "rec-html"
@@ -26,6 +27,9 @@ version := "0.0.1"
 requireJsDomEnv in Test := true
 scalaJSUseMainModuleInitializer := true
 scalaJSModuleKind := ModuleKind.CommonJSModule
+
+
+addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
 
 libraryDependencies ++= Seq(
   "com.chuusai"   %%% "shapeless"          % "2.3.3",
