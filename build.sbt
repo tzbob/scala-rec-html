@@ -28,12 +28,13 @@ requireJsDomEnv in Test := true
 scalaJSUseMainModuleInitializer := true
 scalaJSModuleKind := ModuleKind.CommonJSModule
 
-
-addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
+addCompilerPlugin(
+  "org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
 
 libraryDependencies ++= Seq(
-  "com.chuusai"   %%% "shapeless"          % "2.3.3",
+  "com.chuusai"   %%% "shapeless"         % "2.3.3",
   "be.tzbob"      %%% "scala-js-snabbdom" % "0.5.0",
   "org.scala-js"  %%% "scalajs-dom"       % "1.0.0",
+  "org.typelevel" %%% "cats-core"         % "2.0.0",
   "org.scalatest" %%% "scalatest"         % "3.1.0" % Test,
 )
