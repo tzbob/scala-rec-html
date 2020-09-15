@@ -119,10 +119,10 @@ trait RecHtmlApp {
     ()
   }
 
-  val html: Html[Nothing, HNil]
+  val main: Html[Nothing, HNil]
 
   def main(args: Array[String]): Unit = {
-    run(html, dom.document.getElementById("app"))
+    run(main, dom.document.getElementById("app"))
     println("Starting...")
   }
 }
