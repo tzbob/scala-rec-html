@@ -16,7 +16,7 @@ trait Attributes {
 
   trait InputAttributes extends ElementAttributes {
     val checked = rec.Attr.Property("checked", _)
-    val `type`  = rec.Attr.Attribute("type", _)
+    val tpe  = rec.Attr.Attribute("type", _)
   }
 
 }

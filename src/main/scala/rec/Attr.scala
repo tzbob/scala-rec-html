@@ -4,7 +4,7 @@ import org.scalajs.dom
 
 import scala.scalajs.js.|
 
-trait Attr
+sealed trait Attr
 
 object Attr {
   case class Attribute(key: String, value: String)                extends Attr

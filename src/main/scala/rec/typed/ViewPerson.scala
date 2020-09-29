@@ -8,9 +8,9 @@ class ViewPerson extends RecHtmlApp {
   type Person = ("last" ->> String) :: ("first" ->> String) :: HNil
 
   val lastname = // <input type="text" value=#last/>
-    input(`type`("text"), F.value("last".is[String]), ENil)
+    input(tpe("text"), F.value("last".is[String]), ENil)
   val firstname = // <input type="text" value=#first/>
-    input(`type`("text"), F.value("first".is[String]), ENil)
+    input(tpe("text"), F.value("first".is[String]), ENil)
 
   // <div>lastname firstname</div>
   val personInput = div(ANil, FNil, lastname :: firstname)
@@ -24,7 +24,7 @@ class ViewPerson extends RecHtmlApp {
         text(s"Person: ${person.apply("last")} ${person("first")}") :: back)
   }
 
-  val inputPerson = Html[Person].fix { bindWithReader =>
+  val inputPerson = Html.fix[Person] { bindWithReader =>
     val clickBind = bindWithReader(onclick) { (person, _) =>
       showPerson(person)
     }
@@ -35,5 +35,5 @@ class ViewPerson extends RecHtmlApp {
     div(ANil, FNil, personInput :: btn)
   }
 
-  val typedHtml = inputPerson
+  val main = inputPerson
 }

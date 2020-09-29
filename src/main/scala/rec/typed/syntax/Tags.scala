@@ -12,11 +12,12 @@ trait Tags {
 
   type Sectioning = "header" with "section"
   type FormContent = "input"
-  type Flow = "button" with "h1" with "div" with "text" with "ul" with FormContent with Sectioning
+  type Flow = "button" with "h1" with "div" with "p" with "text" with "ul" with FormContent with Sectioning
 
   type Labelable = "input" with "button"
 
 
+  val dummy = Tag["dummy", "a", "f", "foo" with "bar"]("dummy")
   val label = Tag["label", A.ElementAttributes, F.ElementFields, Labelable with "text"]("label")
 
   val header = Tag["header", A.ElementAttributes, F.ElementFields, Flow]("header")
@@ -28,6 +29,8 @@ trait Tags {
 
   val div = Tag["div", A.ElementAttributes, F.ElementFields, Flow]("div")
   val button = Tag["button", A.ElementAttributes, F.ElementFields, "text"]("button")
+
+  val p = Tag["p", A.ElementAttributes, F.ElementFields, Flow]("p")
 
   val ul = Tag["ul", A.ElementAttributes, F.ElementFields, ListItems]("ul")
 

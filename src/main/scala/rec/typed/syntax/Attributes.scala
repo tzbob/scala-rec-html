@@ -16,5 +16,5 @@ trait Attributes {
 
   type InputAttributes = "checked" with "type" with ElementAttributes
   val checked = property("checked")
-  val `type`  = attribute("type")
+  val tpe  = attribute("type")
 }
