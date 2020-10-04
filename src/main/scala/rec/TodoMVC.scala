@@ -31,19 +31,15 @@ class TodoMVC extends RecHtmlApp {
       </div></li>
        */
       li(
-        Nil,
-        RNil,
         div(
           `class`("view"),
           RNil,
           input(
             `class`("toggle") :: tpe("checkbox") :: checked(todo.checked) :: checkClicked,
-            field("checked", "checked".is[Boolean]),
-            NNil) ::
+            field("checked", "checked".is[Boolean])
+          ) ::
             label(Nil, RNil, text(todo.content)) ::
-            button(`class`("destroy") :: onclick(_ => onUpdate(id, None)),
-                   RNil,
-                   NNil)
+            button(`class`("destroy") :: onclick(_ => onUpdate(id, None)))
         ) :: NNil
       )
     }
@@ -63,8 +59,7 @@ class TodoMVC extends RecHtmlApp {
         withReader(onclick) { (data, _) =>
         html(todos.map(_.copy(checked = data("checked"))))
       },
-      field("checked", "checked".is[Boolean]),
-      NNil
+      field("checked", "checked".is[Boolean])
     )
   }
 
@@ -82,17 +77,18 @@ class TodoMVC extends RecHtmlApp {
        */
       input(
         `class`("new-todo") :: placeholder("Enter todo...") :: autofocus :: clk :: reset,
-        field("value", "in".is[String]),
-        NNil)
+        field("value", "in".is[String])
+      )
     }
 
-  def mkTodoViews(todos: List[Todo]): List[Html[HNil]] = todos.zipWithIndex.map {
-    case (t, i) =>
-      Html.ignore(viewTodo(i, t, {
-        case (i, Some(todo)) => html(todos.updated(i, todo))
-        case (i, _)          => html(todos.patch(i, Nil, 1)) // remove at idx i
-      }))
-  }
+  def mkTodoViews(todos: List[Todo]): List[Html[HNil]] =
+    todos.zipWithIndex.map {
+      case (t, i) =>
+        Html.ignore(viewTodo(i, t, {
+          case (i, Some(todo)) => html(todos.updated(i, todo))
+          case (i, _)          => html(todos.patch(i, Nil, 1)) // remove at idx i
+        }))
+    }
 
   def html(todos: List[Todo], resetSubmission: Boolean = false): Html[_] =
     /*
@@ -111,13 +107,9 @@ class TodoMVC extends RecHtmlApp {
     </div>
      */
     div(
-      Nil,
-      RNil,
       header(`class`("header"),
              RNil,
-             h1(Nil, RNil, text("todos")) :: mkTodoSubmit(
-               todos,
-               resetSubmission) ) ::
+             h1(text("todos")) :: mkTodoSubmit(todos, resetSubmission)) ::
         section(
         `class`("main"),
         RNil,

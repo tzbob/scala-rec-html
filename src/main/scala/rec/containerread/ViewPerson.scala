@@ -6,7 +6,7 @@ import shapeless.record._
 
 import scala.language.reflectiveCalls
 
-object ViewPerson extends RecHtmlApp {
+class ViewPerson extends RecHtmlApp {
   type Person = ("last" ->> String) :: ("first" ->> String) :: HNil
 
   val lastname  = input(tpe("text"), field("value", "last".is[String]))

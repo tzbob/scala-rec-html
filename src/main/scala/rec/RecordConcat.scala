@@ -24,4 +24,11 @@ object RecordConcat {
       prepended: Prepend.Aux[R1, R2, SubResult],
       align: Align[SubResult, Result]): RecordConcat[R1, R2, Result] =
     RecordConcat()
+
+  implicit val hconsHNilHNilRecordConcat: RecordConcat[HNil, HNil, HNil] =
+    RecordConcat()
+  implicit def hconsHNilRecordConcatR[R <: HList]: RecordConcat[HNil, R, R] =
+    RecordConcat()
+  implicit def hconsHNilRecordConcatL[R <: HList]: RecordConcat[R, HNil, R] =
+    RecordConcat()
 }

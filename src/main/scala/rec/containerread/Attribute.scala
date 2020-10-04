@@ -36,6 +36,7 @@ object Attribute {
   }
 
   case object Nil extends Attribute[Nothing]
+  val empty: Attribute[Nothing] = Nil
 
   case class Combined[Use](left: Attribute[Use], right: Attribute[Use])
       extends Attribute[Use]

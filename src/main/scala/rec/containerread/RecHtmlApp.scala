@@ -7,6 +7,7 @@ import shapeless.ops.hlist.Intersection
 import shapeless.ops.record.Keys
 import snabbdom.{VNode, h}
 
+import scala.collection.mutable
 import scala.scalajs.js
 import scala.scalajs.js.{Dictionary, |}
 import scala.scalajs.js.JSConverters._
@@ -16,7 +17,7 @@ trait RecHtmlApp {
 
   def toTopVNode(readableVNode: List[ReadableVNode]) = readableVNode match {
     case List(el) => el.vnode
-    case list     => h("div", js.undefined, list.toJSArray)
+    case list     => h("div", js.Dynamic.literal(), list.map(_.vnode).toJSArray)
   }
 
   def toReadableVNode[Use](
@@ -33,6 +34,13 @@ trait RecHtmlApp {
 
       case Html.Text(str) =>
         List(ReadableVNode(str.asInstanceOf[VNode], () => Map.empty))
+
+      case Html.RequestAnimationFrame(after) =>
+        dom.window.requestAnimationFrame { _ =>
+          render(toReadableVNode(after(), doReadOpt, render))
+        }
+        List.empty
+
       case Html.Element(tag, attribute, field, child) =>
         var newReader: () => Map[String, Any] = null
         // If there is no reader, 'newReader' is the new topmost reader

@@ -9,6 +9,9 @@ import scala.language.implicitConversions
 object DSL extends Tags with Attributes.Attrs with Events {
   type ->>[K, V] = FieldType[K, V]
 
+  val Svg     = rec.containerread.syntax.Svg
+  val SvgAttr = rec.containerread.syntax.SvgAttributes
+
   case class FieldSelector[R](fieldName: String)
   implicit class FieldSelectorMaker[K <: Singleton with String](str: K)(
       implicit witness: Witness.Aux[K]) {

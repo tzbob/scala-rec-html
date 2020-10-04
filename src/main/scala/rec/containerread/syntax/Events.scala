@@ -8,6 +8,11 @@ trait Events {
   private def event(key: String): Attribute.EventBindMaker =
     new Attribute.EventBindMaker(key)
 
+  lazy val onpointerdown   = event("pointerdown")
+  lazy val onpointerup     = event("pointerup")
+  lazy val onpointercancel = event("pointercancel")
+  lazy val onpointermove   = event("pointermove")
+
   /**
     * The keydown event is raised when the user presses a keyboard key.
     *

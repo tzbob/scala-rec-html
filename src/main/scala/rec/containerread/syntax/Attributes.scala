@@ -12,14 +12,14 @@ object Attributes {
       Attribute.AttributeImpl(key, value)
     val empty: Attribute[Nothing] = Attribute.AttributeImpl(key, "")
   }
-  private def attr(key: String): AttributeMaker = new AttributeMaker(key)
+  def attr(key: String): AttributeMaker = new AttributeMaker(key)
 
   class PropertyMaker(key: String) {
     def apply(value: String | Boolean | Int): Attribute[Nothing] =
       Attribute.Property(key, value)
     val empty: Attribute[Nothing] = Attribute.Property(key, "")
   }
-  private def prop(key: String): PropertyMaker = new PropertyMaker(key)
+  def prop(key: String): PropertyMaker = new PropertyMaker(key)
 
   trait Global {
 

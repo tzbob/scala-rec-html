@@ -37,4 +37,7 @@ case class Tag(name: String) {
 
   def apply[Use](attributes: Attribute[Use]): Html[Use, HNil] =
     Html.Element(name, attributes, Field.Nil, Html.Nil)
+
+  def apply(): Html[Nothing, HNil] =
+    Html.Element(name, Attribute.Nil, Field.Nil, Html.Nil)
 }
