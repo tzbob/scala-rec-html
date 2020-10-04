@@ -7,8 +7,8 @@ import rec.typed.ElementList.ElementList
 import rec.typed.SubsetOf.⊂
 import shapeless.HList
 
-case class Tag[Name <: String with Singleton, AcceptedAttrs, AcceptedFields,
-AcceptedChildren](name: Name) {
+case class Tag[Name <: String with Singleton, AcceptedAttrs, AcceptedFields, AcceptedChildren](
+    name: Name) {
   def apply[FieldRead <: HList,
             ChildrenRead <: HList,
             Read <: HList,

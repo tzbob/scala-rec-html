@@ -37,32 +37,32 @@ trait Tags extends Fields with Attributes {
     lazy val li = Tags.this.li
   }
 
-  val label =
+  lazy val label =
     Tag("label",
         new ElementAttributes   {},
         new ElementFields       {},
         new Labelable with Text {})
 
-  val header =
+  lazy val header =
     Tag("header", new ElementFields {}, new ElementFields {}, new Flow {})
-  val section =
+  lazy val section =
     Tag("section", new ElementFields {}, new ElementFields {}, new Flow {})
 
-  val h1 =
+  lazy val h1 =
     Tag("h1", new ElementFields {}, new ElementFields {}, new Flow {})
 
-  val input =
+  lazy val input =
     Tag("input", new InputAttributes {}, new InputFields {}, new Flow {})
 
-  val div =
+  lazy val div =
     Tag("div", new ElementAttributes {}, new ElementFields {}, new Flow {})
-  val button =
+  lazy val button =
     Tag("button", new ElementAttributes {}, new ElementFields {}, new Text {})
 
-  val ul =
+  lazy val ul =
     Tag("ul", new ElementAttributes {}, new ElementFields {}, new ListItems {})
 
-  val li =
+  lazy val li =
     Tag("li", new ElementAttributes {}, new ElementFields {}, new Flow {})
 }
 

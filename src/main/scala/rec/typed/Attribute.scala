@@ -2,18 +2,13 @@ package rec.typed
 
 import org.scalajs.dom
 
-case class Attribute[Name <: String with Singleton](name: Name,
-                                                    attr: rec.Attr) {
-  type Nm = Name
-}
+case class Attribute[Name <: String with Singleton](name: Name, attr: rec.Attr)
 
 object Attribute {
-  def attribute[Name <: String with Singleton](
-      name: Name): String => Attribute[Name] =
+  def attribute[Name <: String with Singleton](name: Name): String => Attribute[Name] =
     value => Attribute(name, rec.Attr.Attribute(name, value))
 
-  def property[Name <: String with Singleton](
-      name: Name): String => Attribute[Name] =
+  def property[Name <: String with Singleton](name: Name): String => Attribute[Name] =
     value => Attribute(name, rec.Attr.Property(name, value))
 
   class EventBinder[Name <: String with Singleton](val name: Name) {

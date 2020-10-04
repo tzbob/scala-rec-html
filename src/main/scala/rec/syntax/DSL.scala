@@ -18,13 +18,14 @@ object DSL extends Tags with Attributes.Attrs with Events {
   case class FieldSelector[R](fieldName: String)
   implicit class FieldSelectorMaker[K <: Singleton with String](str: K)(
       implicit witness: Witness.Aux[K]) {
-    def is[V]: FieldSelector[FieldType[K, V] :: HNil] =
-      FieldSelector[FieldType[K, V] :: HNil](str)
+    def is[V]: FieldSelector[(K ->> V) :: HNil] =
+      FieldSelector[(K ->> V) :: HNil](str)
   }
 
-  val text: String => Html[HNil] = str => Text(str)
   def field[R](attribute: String, field: FieldSelector[R]): Field[R] =
     Field[R](attribute, field.fieldName)
+
+  val text: String => Html[HNil] = str => Text(str)
 
   implicit def toList[R](attr: Attr): List[Attr] = List(attr)
   implicit def toNodeList[R <: HList](html: Html[R])(
