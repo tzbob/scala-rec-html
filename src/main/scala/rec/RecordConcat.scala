@@ -32,7 +32,19 @@ object RecordConcat {
       prepended: Prepend.Aux[R1, R2, SubResult],
       align: Align[SubResult, Result]): RecordConcat[R1, R2, Result] =
     new RecordConcat[R1, R2, Result] {
-      override def apply(r1: R1, r2: R2): Result =
-        align(prepended(r1, r2))
+      override def apply(r1: R1, r2: R2): Result = align(prepended(r1, r2))
+    }
+
+  implicit val hconsHNilHNilRecordConcat: RecordConcat[HNil, HNil, HNil] =
+    new RecordConcat[HNil, HNil, HNil] {
+      override def apply(r1: HNil, r2: HNil): HNil = HNil
+    }
+  implicit def hconsHNilRecordConcatR[R <: HList]: RecordConcat[HNil, R, R] =
+    new RecordConcat[HNil, R, R] {
+      override def apply(r1: HNil, r2: R): R = r2
+    }
+  implicit def hconsHNilRecordConcatL[R <: HList]: RecordConcat[R, HNil, R] =
+    new RecordConcat[R, HNil, R] {
+      override def apply(r1: R, r2: HNil): R = r1
     }
 }

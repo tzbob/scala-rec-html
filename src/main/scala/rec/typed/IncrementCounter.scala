@@ -5,7 +5,7 @@ import shapeless._
 import shapeless.record._
 import shapeless.syntax.singleton._
 
-object IncrementCounter extends RecHtmlApp {
+class IncrementCounter extends RecHtmlApp {
   type Inc = ("inc" ->> String) :: HNil
   def ex(count: Int, r: Inc): Html["div", HNil] =
     Html.fix[Inc] { withReader =>
