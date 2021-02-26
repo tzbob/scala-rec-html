@@ -28,6 +28,17 @@ requireJsDomEnv in Test := true
 scalaJSUseMainModuleInitializer := true
 scalaJSModuleKind := ModuleKind.CommonJSModule
 
+// Open: resources/todomvc.html
+mainClass in Compile := Some("rec.isolate.examples.TodoMVC")
+
+// Open: resources/index.html
+//mainClass in Compile := Some("rec.isolate.examples.CounterExample")
+//mainClass in Compile := Some("rec.isolate.examples.FieldCompare")
+//mainClass in Compile := Some("rec.isolate.examples.HelloWorld")
+//mainClass in Compile := Some("rec.isolate.examples.ViewPerson")
+//mainClass in Compile := Some("rec.isolate.examples.Wizard")
+//mainClass in Compile := Some("rec.allowconflicts.examples.PersonList")
+
 addCompilerPlugin(
   "org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
 
